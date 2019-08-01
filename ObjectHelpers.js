@@ -1,3 +1,10 @@
+const DEFAULT_CONFIGS_GET_VALUE = {
+	prefixValue: null,
+	suffixValue: null,
+	isHideValue: false,
+	valueHide: '-'
+}
+
 function isObject(val) {
 	if (val === null) { return false;}
 	return ( (typeof val === 'function') || (typeof val === 'object') );
@@ -23,7 +30,8 @@ function isNullOrUndefined(val) {
 	return val === null || val === undefined
 }
 
-function getValueByKey(obj, targets, valueIfNull = '') {
+function getValueByKey(obj, targets, valueIfNull = '', configs) {
+	let curConfigs = Object.assign(clone(DEFAULT_CONFIGS_GET_VALUE), configs)
 	if (isNullOrUndefined(obj)) {
 		return valueIfNull
 	}
@@ -40,6 +48,11 @@ function getValueByKey(obj, targets, valueIfNull = '') {
 			return valueIfNull
 		}
 	}
+
+	if (curConfigs.prefixValue) { value = `${curConfigs.prefixValue}${value}` }
+	if (curConfigs.suffixValue) { value = `${value}${curConfigs.suffixValue}` }
+	if (curConfigs.isHideValue) { value = curConfigs.valueHide }
+
 	return value
 }
 
@@ -47,9 +60,8 @@ function setValueByKey(obj, targets, val) {
 	if (isNullOrUndefined(obj)) {
 		return false
 	}
-	if(!targets) {
+	if (!targets) {
 		obj = val
-		console.log(obj)
 		return true
 	}
 	let targetSplit = targets.split('.')
@@ -68,7 +80,7 @@ function setValueByKey(obj, targets, val) {
 		if (isNullOrUndefined(value) && i !== targetSplit.length -1) {
 			return false
 		}
-		if(i === targetSplit.length -1) {
+		if (i === targetSplit.length - 1) {
 			setterValue[target] = val
 		}
 	}
@@ -93,6 +105,14 @@ function getRawByKey(obj, targets) {
 		}
 	}
 	return value
+}
+
+function isArray(obj) {
+	if (typeof Array.isArray === 'undefined') {
+		return Object.prototype.toString.call(obj) === '[object Array]';
+	} else {
+		return Array.isArray(obj)
+	}
 }
 
 const ObjectHelpers = {
